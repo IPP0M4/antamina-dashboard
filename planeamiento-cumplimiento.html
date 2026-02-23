@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antamina – Cumplimiento CP & MP</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f3f8;
+    --bg-nav: #ffffff;
+    --bg-card: #ffffff;
+    --bg-section: #f7f9fc;
+    --accent: #0072c6;
+    --teal: #00a8a0;
+    --green: #1a9c4a;
+    --red: #d63b4b;
+    --gold: #d4890a;
+    --purple: #7b5ea7;
+    --text: #1a2233;
+    --text2: #4a5a72;
+    --text3: #9aacbe;
+    --border: #e0e8f4;
+    --border2: #c8d6e8;
+    --shadow: 0 2px 12px rgba(0,40,100,0.07);
+    --shadow2: 0 4px 20px rgba(0,40,100,0.12);
+
+    /* Compliance colors */
+    --c-ok:   #1a9c4a;
+    --c-warn: #d4890a;
+    --c-fail: #d63b4b;
+    --c-ok-bg:   rgba(26,156,74,0.08);
+    --c-warn-bg: rgba(212,137,10,0.08);
+    --c-fail-bg: rgba(214,59,75,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--accent); padding:0 28px; height:52px;
+    box-shadow:0 2px 10px rgba(0,60,150,0.2);
+    position:sticky; top:0; z-index:200;
+  }
+  .logo-area { display:flex; align-items:center; gap:11px; }
+  .logo-text { font-family:'Barlow Condensed',sans-serif; font-size:21px; font-weight:800; color:#fff; letter-spacing:3px; }
+  .nav-div { width:1px; height:24px; background:rgba(255,255,255,0.25); margin:0 14px; }
+  .nav-sub { font-size:12px; color:rgba(255,255,255,0.75); }
+  .nav-right { display:flex; align-items:center; gap:10px; }
+  .date-pill {
+    font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700;
+    background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3);
+    color:#fff; padding:4px 14px; border-radius:20px; letter-spacing:1.5px;
+  }
+
+  /* ── TAB BAR ── */
+  .tabbar {
+    display:flex; background:#fff;
+    border-bottom:2px solid var(--border);
+    padding:0 28px;
+    box-shadow:0 2px 6px rgba(0,40,100,0.05);
+  }
+  .tab {
+    display:flex; align-items:center; gap:7px;
+    padding:0 26px; height:44px;
+    font-size:13px; font-weight:600; letter-spacing:0.3px;
+    color:var(--text3); cursor:pointer;
+    border-bottom:3px solid transparent; margin-bottom:-2px;
+    transition:all 0.2s; user-select:none;
+  }
+  .tab:hover { color:var(--accent); background:rgba(0,114,198,0.04); }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); background:rgba(0,114,198,0.05); }
+
+  /* ── COMPLIANCE FILTER BAR ── */
+  .compbar {
+    display:flex; align-items:center; gap:0;
+    padding:12px 28px; background:#fff;
+    border-bottom:1px solid var(--border);
+    box-shadow:0 1px 4px rgba(0,40,100,0.04);
+  }
+  .compbar-label {
+    font-size:10px; color:var(--text3); text-transform:uppercase;
+    letter-spacing:1.5px; font-weight:700; margin-right:14px;
+  }
+  .period-group { display:flex; border:1px solid var(--border2); border-radius:6px; overflow:hidden; }
+  .period-btn {
+    padding:7px 22px; font-size:12px; font-weight:600;
+    color:var(--text2); background:#fff; cursor:pointer;
+    border-right:1px solid var(--border2); transition:all 0.15s;
+    letter-spacing:0.3px;
+  }
+  .period-btn:last-child { border-right:none; }
+  .period-btn:hover { background:rgba(0,114,198,0.05); color:var(--accent); }
+  .period-btn.active { background:var(--accent); color:#fff; }
+
+  .compbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .compbar-info { font-size:10px; color:var(--text3); }
+
+  /* Global compliance summary pills */
+  .comp-summary { display:flex; gap:8px; margin-left:20px; }
+  .comp-pill {
+    display:flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:700; padding:5px 12px; border-radius:20px;
+  }
+  .comp-pill-green { background:var(--c-ok-bg); color:var(--c-ok); border:1px solid rgba(26,156,74,0.2); }
+  .comp-pill-gold  { background:var(--c-warn-bg); color:var(--c-warn); border:1px solid rgba(212,137,10,0.2); }
+  .comp-pill-red   { background:var(--c-fail-bg); color:var(--c-fail); border:1px solid rgba(214,59,75,0.2); }
+
+  /* ── PAGE ── */
+  .page { display:none; }
+  .page.active { display:block; }
+  .main { padding:20px 28px; display:flex; flex-direction:column; gap:20px; }
+
+  /* ── SECTION HEADER ── */
+  .sec-hdr { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .sec-num {
+    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+    background:var(--accent); color:#fff; padding:2px 8px; border-radius:3px;
+    letter-spacing:1px;
+  }
+  .sec-title {
+    font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700;
+    text-transform:uppercase; letter-spacing:2px; color:var(--text2);
+  }
+  .sec-line { flex:1; height:1px; background:var(--border); }
+
+  /* ── CARD ── */
+  .card {
+    background:var(--bg-card); border:1px solid var(--border);
+    border-radius:6px; box-shadow:var(--shadow); overflow:hidden;
+  }
+  .card-hdr {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px; border-bottom:1px solid var(--border);
+    background:var(--bg-section);
+  }
+  .card-title {
+    font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1.5px; color:var(--text);
+  }
+  .card-sub { font-size:10px; color:var(--text3); }
+  .card-body { padding:14px 16px; }
+
+  /* ── GRIDS ── */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .g4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
+  .g13 { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; }
+
+  /* ── COMPLIANCE GAUGE (big number) ── */
+  .comp-gauge-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:14px; }
+
+  .comp-gauge {
+    border-radius:6px; padding:16px; text-align:center;
+    border:1px solid; position:relative; overflow:hidden;
+    transition:box-shadow 0.2s;
+  }
+  .comp-gauge:hover { box-shadow:var(--shadow2); }
+
+  .comp-gauge.ok   { background:var(--c-ok-bg); border-color:rgba(26,156,74,0.25); }
+  .comp-gauge.warn { background:var(--c-warn-bg); border-color:rgba(212,137,10,0.25); }
+  .comp-gauge.fail { background:var(--c-fail-bg); border-color:rgba(214,59,75,0.25); }
+
+  .gauge-pct {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:38px; font-weight:800; line-height:1;
+    margin-bottom:4px;
+  }
+  .ok   .gauge-pct { color:var(--c-ok); }
+  .warn .gauge-pct { color:var(--c-warn); }
+  .fail .gauge-pct { color:var(--c-fail); }
+
+  .gauge-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text2); margin-bottom:6px; }
+  .gauge-detail { font-size:10px; color:var(--text3); }
+  .gauge-icon { font-size:18px; margin-bottom:6px; display:block; }
+
+  /* ── COMPLIANCE BAR TABLE ── */
+  .ctbl { width:100%; border-collapse:collapse; }
+  .ctbl th {
+    font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+    color:var(--text3); padding:6px 10px; text-align:right;
+    border-bottom:2px solid var(--border); background:var(--bg-section);
+  }
+  .ctbl th:first-child { text-align:left; }
+  .ctbl th.th-comp { text-align:center; min-width:90px; }
+
+  .ctbl td {
+    font-size:11px; padding:8px 10px;
+    text-align:right; border-bottom:1px solid var(--border);
+    color:var(--text2); font-family:'Barlow Condensed',sans-serif;
+  }
+  .ctbl td:first-child { text-align:left; font-size:11px; font-family:'Barlow',sans-serif; font-weight:500; color:var(--text); }
+  .ctbl tr:last-child td { border-bottom:none; }
+  .ctbl tr:hover td { background:rgba(0,114,198,0.02); }
+  .ctbl tr.grp-hdr td {
+    background:var(--bg-section); font-size:9px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1px; color:var(--text3);
+    padding:5px 10px; border-left:3px solid var(--accent);
+  }
+
+  /* Compliance cell */
+  .cc {
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:4px; font-size:11px; font-weight:700; padding:3px 10px;
+    border-radius:4px; min-width:70px;
+  }
+  .cc-ok   { background:var(--c-ok-bg); color:var(--c-ok); }
+  .cc-warn { background:var(--c-warn-bg); color:var(--c-warn); }
+  .cc-fail { background:var(--c-fail-bg); color:var(--c-fail); }
+
+  /* ── COMPLIANCE BAR ── */
+  .cbar-wrap { display:flex; align-items:center; gap:8px; }
+  .cbar-track {
+    flex:1; height:7px; background:var(--bg);
+    border:1px solid var(--border); border-radius:3px; overflow:hidden;
+  }
+  .cbar-fill { height:100%; border-radius:3px; }
+  .cbar-pct { font-size:11px; font-weight:700; font-family:'Barlow Condensed',sans-serif; min-width:38px; text-align:right; }
+  .cbar-target { font-size:9px; color:var(--text3); min-width:52px; }
+
+  /* ── SAFETY BLOCK ── */
+  .safety-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .safety-stat {
+    border-radius:5px; padding:13px; text-align:center;
+    border:1px solid;
+  }
+  .safety-stat.ok   { background:var(--c-ok-bg); border-color:rgba(26,156,74,0.2); }
+  .safety-stat.warn { background:var(--c-warn-bg); border-color:rgba(212,137,10,0.2); }
+  .safety-stat.fail { background:var(--c-fail-bg); border-color:rgba(214,59,75,0.2); }
+  .safety-num {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:32px; font-weight:800; line-height:1; margin-bottom:3px;
+  }
+  .safety-lbl { font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; font-weight:600; }
+  .safety-sub { font-size:9px; color:var(--text3); margin-top:3px; }
+
+  /* ── COMPLIANCE HEATMAP ── */
+  .heat-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .heat-cell {
+    aspect-ratio:1; border-radius:3px; cursor:default;
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; transition:transform 0.1s;
+  }
+  .heat-cell:hover { transform:scale(1.1); }
+  .heat-ok   { background:var(--c-ok); color:#fff; }
+  .heat-warn { background:var(--c-gold); color:#fff; }
+  .heat-fail { background:var(--c-fail); color:#fff; }
+  .heat-empty{ background:var(--bg); border:1px solid var(--border); color:var(--text3); }
+
+  /* ── MINI SPARKLINE ── */
+  .spark-row { display:flex; align-items:flex-end; gap:2px; height:32px; }
+  .spark-col { flex:1; border-radius:1px 1px 0 0; min-height:2px; }
+
+  /* ── STATUS BADGE ── */
+  .sbadge {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:10px; font-weight:700; padding:3px 9px; border-radius:3px;
+  }
+  .sbadge-ok   { background:var(--c-ok-bg); color:var(--c-ok); }
+  .sbadge-warn { background:var(--c-warn-bg); color:var(--c-warn); }
+  .sbadge-fail { background:var(--c-fail-bg); color:var(--c-fail); }
+  .sbadge-blue { background:rgba(0,114,198,0.1); color:var(--accent); }
+
+  /* ── MP PLACEHOLDER ── */
+  .mp-placeholder {
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; min-height:380px; gap:14px;
+  }
+  .mp-icon { font-size:52px; opacity:0.25; }
+  .mp-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; color:var(--text3); letter-spacing:2px; }
+  .mp-sub { font-size:12px; color:var(--text3); }
+
+  /* ── FOOTER ── */
+  .footer {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 28px; background:#fff; border-top:1px solid var(--border);
+    font-size:10px; color:var(--text3); margin-top:8px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(5px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .card { animation:fadeUp 0.35s ease both; }
+  .comp-gauge { animation:fadeUp 0.35s ease both; }
+  .comp-gauge:nth-child(1){animation-delay:.05s}
+  .comp-gauge:nth-child(2){animation-delay:.10s}
+  .comp-gauge:nth-child(3){animation-delay:.15s}
+  .comp-gauge:nth-child(4){animation-delay:.20s}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="logo-area">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,2 28,10 28,22 16,30 4,22 4,10" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>
+      <polygon points="16,7 23,12 23,20 16,25 9,20 9,12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.65)" stroke-width="1"/>
+      <circle cx="16" cy="16" r="3" fill="#fff"/>
+    </svg>
+    <span class="logo-text">ANTAMINA</span>
+    <div class="nav-div"></div>
+    <span class="nav-sub">Mine Operations — Cumplimiento CP / MP</span>
+  </div>
+  <div class="nav-right">
+    <span class="date-pill">ENE 2026</span>
+  </div>
+</nav>
+
+<!-- TAB BAR -->
+<div class="tabbar">
+  <div class="tab active" onclick="switchTab('cp',this)">⛏ &nbsp;Corto Plazo (CP)</div>
+  <div class="tab" onclick="switchTab('mp',this)">📐 &nbsp;Mediano Plazo (MP)</div>
+</div>
+
+<!-- COMPLIANCE FILTER BAR -->
+<div class="compbar">
+  <span class="compbar-label">Período:</span>
+  <div class="period-group">
+    <div class="period-btn" onclick="switchPeriod('diario',this)">Diario</div>
+    <div class="period-btn" onclick="switchPeriod('semanal',this)">Semanal</div>
+    <div class="period-btn active" onclick="switchPeriod('mensual',this)">Mensual</div>
+  </div>
+  <div class="comp-summary">
+    <div class="comp-pill comp-pill-green" id="pill-ok">✔ <span id="cnt-ok">8</span> En cumplimiento</div>
+    <div class="comp-pill comp-pill-gold"  id="pill-warn">⚠ <span id="cnt-warn">4</span> Con desviación</div>
+    <div class="comp-pill comp-pill-red"   id="pill-fail">✕ <span id="cnt-fail">3</span> Fuera de meta</div>
+  </div>
+  <div class="compbar-right">
+    <span class="compbar-info" id="period-label">Mes: Enero 2026 · 31 días</span>
+  </div>
+</div>
+
+<!-- ══════════════ CP PAGE ══════════════ -->
+<div class="page active" id="page-cp">
+<div class="main">
+
+  <!-- ── SECCIÓN 2: SEGURIDAD ── -->
+  <div>
+    <div class="sec-hdr">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Seguridad — Cumplimiento de Indicadores</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="comp-gauge-row">
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">🛡</span>
+        <div class="gauge-label">RIFR Mensual</div>
+        <div class="gauge-pct">0.00</div>
+        <div class="gauge-detail">Target: 0.85 &nbsp;·&nbsp; <strong style="color:var(--c-ok)">✔ Cumple</strong></div>
+      </div>
+      <div class="comp-gauge fail">
+        <span class="gauge-icon">📊</span>
+        <div class="gauge-label">RIFR YTD</div>
+        <div class="gauge-pct">1.85</div>
+        <div class="gauge-detail">Target: 0.85 &nbsp;·&nbsp; <strong style="color:var(--c-fail)">✕ 117.6% sobre meta</strong></div>
+      </div>
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">🏥</span>
+        <div class="gauge-label">RISR Mensual</div>
+        <div class="gauge-pct">0.00</div>
+        <div class="gauge-detail">Target: 9.70 &nbsp;·&nbsp; <strong style="color:var(--c-ok)">✔ Cumple</strong></div>
+      </div>
+      <div class="comp-gauge warn">
+        <span class="gauge-icon">📉</span>
+        <div class="gauge-label">RISR YTD</div>
+        <div class="gauge-pct">14.20</div>
+        <div class="gauge-detail">Target: 9.70 &nbsp;·&nbsp; <strong style="color:var(--c-warn)">⚠ 46.4% sobre meta</strong></div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Resumen Mensual Seguridad</span>
+          <span class="sbadge sbadge-ok">✔ Sin accidentes</span>
+        </div>
+        <div class="card-body">
+          <table class="ctbl">
+            <thead><tr><th>Indicador</th><th>Real</th><th>Target</th><th class="th-comp">Cumplimiento</th></tr></thead>
+            <tbody>
+              <tr><td>Accidentes registrables (mes)</td><td>0</td><td>0</td><td style="text-align:center"><span class="cc cc-ok">✔ 100%</span></td></tr>
+              <tr><td>Días perdidos (mes)</td><td>0</td><td>0</td><td style="text-align:center"><span class="cc cc-ok">✔ 100%</span></td></tr>
+              <tr><td>RIFR acumulado YTD</td><td>1.85</td><td>0.85</td><td style="text-align:center"><span class="cc cc-fail">✕ Fuera</span></td></tr>
+              <tr><td>RISR acumulado YTD</td><td>14.20</td><td>9.70</td><td style="text-align:center"><span class="cc cc-warn">⚠ Desv.</span></td></tr>
+              <tr><td>Inspecciones botaderos</td><td>31</td><td>31</td><td style="text-align:center"><span class="cc cc-ok">✔ 100%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Tendencia RIFR — Últimos 6 meses</span>
+          <span class="card-sub">vs Target 0.85</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:flex-end;gap:0;height:90px;padding-bottom:4px;position:relative;border-bottom:1px solid var(--border);border-left:1px solid var(--border);">
+            <div style="position:absolute;left:0;right:0;top:22%;border-top:1.5px dashed rgba(214,59,75,0.5);">
+              <span style="position:absolute;right:4px;top:-10px;font-size:8px;color:var(--red);background:#fff;padding:0 2px;">Target 0.85</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;">
+              <span style="font-size:8px;color:var(--text3)">2.62</span>
+              <div style="width:100%;background:var(--c-fail);opacity:0.5;border-radius:2px 2px 0 0;height:62px;"></div>
+              <span style="font-size:8px;color:var(--text3)">Ago</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;">
+              <span style="font-size:8px;color:var(--text3)">2.44</span>
+              <div style="width:100%;background:var(--c-fail);opacity:0.55;border-radius:2px 2px 0 0;height:58px;"></div>
+              <span style="font-size:8px;color:var(--text3)">Sep</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;">
+              <span style="font-size:8px;color:var(--text3)">2.20</span>
+              <div style="width:100%;background:var(--c-fail);opacity:0.6;border-radius:2px 2px 0 0;height:52px;"></div>
+              <span style="font-size:8px;color:var(--text3)">Oct</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;">
+              <span style="font-size:8px;color:var(--text3)">2.05</span>
+              <div style="width:100%;background:var(--c-fail);opacity:0.65;border-radius:2px 2px 0 0;height:48px;"></div>
+              <span style="font-size:8px;color:var(--text3)">Nov</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;">
+              <span style="font-size:8px;color:var(--text3)">1.92</span>
+              <div style="width:100%;background:var(--c-warn);opacity:0.7;border-radius:2px 2px 0 0;height:44px;"></div>
+              <span style="font-size:8px;color:var(--text3)">Dic</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px;">
+              <span style="font-size:8px;color:var(--c-ok);font-weight:700">0.00</span>
+              <div style="width:100%;background:var(--c-ok);border-radius:2px 2px 0 0;height:3px;"></div>
+              <span style="font-size:8px;color:var(--c-ok);font-weight:700">Ene</span>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:8px 10px;background:var(--c-ok-bg);border:1px solid rgba(26,156,74,0.2);border-radius:4px;font-size:11px;color:var(--text2);">
+            ✔ &nbsp;Enero 2026: <strong>0</strong> accidentes registrables · <strong>0</strong> días perdidos
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 3: OPERACIONES ── -->
+  <div>
+    <div class="sec-hdr">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Operaciones — Cumplimiento de Producción</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <!-- Compliance gauges -->
+    <div class="comp-gauge-row">
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">⛰</span>
+        <div class="gauge-label">Ex-Pit Total</div>
+        <div class="gauge-pct">105.9%</div>
+        <div class="gauge-detail">23,840 / 22,500 kDMT</div>
+      </div>
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">🪨</span>
+        <div class="gauge-label">Mineral Ex-Pit</div>
+        <div class="gauge-pct">147.0%</div>
+        <div class="gauge-detail">6,320 / 4,300 kDMT</div>
+      </div>
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">🏭</span>
+        <div class="gauge-label">Crusher Feed</div>
+        <div class="gauge-pct">108.1%</div>
+        <div class="gauge-detail">5,620 / 5,200 kDMT</div>
+      </div>
+      <div class="comp-gauge fail">
+        <span class="gauge-icon">🏔</span>
+        <div class="gauge-label">Desmonte Ex-Pit</div>
+        <div class="gauge-pct">96.3%</div>
+        <div class="gauge-detail">17,520 / 18,200 kDMT</div>
+      </div>
+    </div>
+
+    <div class="g13">
+      <!-- Cumplimiento por indicador con barras -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Cumplimiento Producción por Indicador</span>
+          <span class="card-sub">Real vs Budget · Meta ≥ 100%</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:11px;">
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Ex-Pit Total</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">23,840 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 22,500</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">105.9%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Mineral Ex-Pit</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">6,320 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 4,300</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">147.0%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Desmonte Ex-Pit</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">17,520 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 18,200</span>
+                  <span class="cc cc-fail" style="font-size:9px;padding:1px 6px;">96.3%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:85%;background:var(--c-fail);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Fase 08 Ex-Pit</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">8,120 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 6,000</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">135.3%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Fase 09 Ex-Pit</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">9,210 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 8,800</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">104.7%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Fase 10 Ex-Pit</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">3,050 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 6,800</span>
+                  <span class="cc cc-fail" style="font-size:9px;padding:1px 6px;">44.9%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:45%;background:var(--c-fail);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Crusher Feed Total</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">5,620 k</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 5,200</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">108.1%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Strip Ratio</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">2.61</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 4.20 plan</span>
+                  <span class="cc cc-warn" style="font-size:9px;padding:1px 6px;">62.1%</span>
+                </div>
+              </div>
+              <div class="cbar-wrap">
+                <div class="cbar-track"><div class="cbar-fill" style="width:62%;background:var(--c-warn);"></div></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Metales -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Cumplimiento Metales</span><span class="card-sub">Crusher Feed</span></div>
+          <div class="card-body">
+            <table class="ctbl">
+              <thead><tr><th>Metal</th><th>Real</th><th>Budget</th><th class="th-comp">Cumpl.</th></tr></thead>
+              <tbody>
+                <tr><td>Cu Total (t)</td><td>57.2</td><td>40.1</td><td style="text-align:center"><span class="cc cc-ok">142.6%</span></td></tr>
+                <tr><td>Zn Total (t)</td><td>24.1</td><td>20.8</td><td style="text-align:center"><span class="cc cc-ok">115.9%</span></td></tr>
+                <tr><td>Mo Total (t)</td><td>1.9</td><td>0.7</td><td style="text-align:center"><span class="cc cc-ok">271.4%</span></td></tr>
+                <tr><td>%Cu cabeza</td><td>1.02</td><td>0.87</td><td style="text-align:center"><span class="cc cc-ok">117.2%</span></td></tr>
+                <tr><td>%Zn cabeza</td><td>1.50</td><td>1.62</td><td style="text-align:center"><span class="cc cc-warn">92.6%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Cumplimiento Botaderos</span><span class="card-sub">kDMT</span></div>
+          <div class="card-body">
+            <table class="ctbl">
+              <thead><tr><th>Botadero</th><th>Real</th><th>Budget</th><th class="th-comp">Cumpl.</th></tr></thead>
+              <tbody>
+                <tr><td>Yanacancha</td><td>10,820</td><td>12,400</td><td style="text-align:center"><span class="cc cc-warn">87.3%</span></td></tr>
+                <tr><td>Tucush</td><td>3,420</td><td>3,375</td><td style="text-align:center"><span class="cc cc-ok">101.3%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 4: PLANIFICACIÓN ── -->
+  <div>
+    <div class="sec-hdr">
+      <span class="sec-num">04</span>
+      <span class="sec-title">Planificación — Cumplimiento de Entregables</span>
+      <div class="sec-line"></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Entregables del Mes</span>
+          <span class="card-sub">Enero 2026</span>
+        </div>
+        <div class="card-body">
+          <table class="ctbl">
+            <thead><tr><th>Entregable</th><th>Área</th><th class="th-comp">Estado</th></tr></thead>
+            <tbody>
+              <tr><td>Presentación LOM a VPO</td><td style="text-align:right">LTP</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>Actualización parámetros 5YP</td><td style="text-align:right">LTP</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>1ra iteración Plan 5 Años</td><td style="text-align:right">LTP</td><td style="text-align:center"><span class="cc cc-warn">⚠ En revisión</span></td></tr>
+              <tr><td>Diseño LTP Fase 9 iterado</td><td style="text-align:right">Planeam.</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>Rediseño Fase 10a0</td><td style="text-align:right">Planeam.</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>Análisis tiempos fijos camiones</td><td style="text-align:right">Planeam.</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>Reporte ADCOM mensual</td><td style="text-align:right">Planeam.</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>Actualización A+ iniciativas Wave</td><td style="text-align:right">BI</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+              <tr><td>Forecast 2026 producción y expit</td><td style="text-align:right">Planeam.</td><td style="text-align:center"><span class="cc cc-ok">✔ Cumple</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Forecast vs Budget — Producción</span>
+          <span class="card-sub">Cumplimiento mensual y YTD</span>
+        </div>
+        <div class="card-body">
+          <table class="ctbl">
+            <thead>
+              <tr><th>Indicador</th><th>Real</th><th>Budget</th><th class="th-comp">Mes</th><th class="th-comp">YTD</th></tr>
+            </thead>
+            <tbody>
+              <tr class="grp-hdr"><td colspan="5">Producción (kDMT)</td></tr>
+              <tr><td>Ex-Pit Total</td><td>23,840</td><td>22,500</td><td style="text-align:center"><span class="cc cc-ok">105.9%</span></td><td style="text-align:center"><span class="cc cc-ok">105.9%</span></td></tr>
+              <tr><td>Mineral Ex-Pit</td><td>6,320</td><td>4,300</td><td style="text-align:center"><span class="cc cc-ok">147.0%</span></td><td style="text-align:center"><span class="cc cc-ok">121.5%</span></td></tr>
+              <tr><td>Desmonte</td><td>17,520</td><td>18,200</td><td style="text-align:center"><span class="cc cc-fail">96.3%</span></td><td style="text-align:center"><span class="cc cc-warn">98.1%</span></td></tr>
+              <tr><td>Crusher Feed</td><td>5,620</td><td>5,200</td><td style="text-align:center"><span class="cc cc-ok">108.1%</span></td><td style="text-align:center"><span class="cc cc-ok">108.1%</span></td></tr>
+              <tr class="grp-hdr"><td colspan="5">Metales</td></tr>
+              <tr><td>Cu Metal (t)</td><td>57.2</td><td>40.1</td><td style="text-align:center"><span class="cc cc-ok">142.6%</span></td><td style="text-align:center"><span class="cc cc-ok">137.5%</span></td></tr>
+              <tr><td>Zn Metal (t)</td><td>24.1</td><td>20.8</td><td style="text-align:center"><span class="cc cc-ok">115.9%</span></td><td style="text-align:center"><span class="cc cc-ok">122.7%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 6: EQUIPOS ── -->
+  <div>
+    <div class="sec-hdr">
+      <span class="sec-num">06</span>
+      <span class="sec-title">Equipos — Cumplimiento de Disponibilidad y Productividad</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="comp-gauge-row">
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">🏭</span>
+        <div class="gauge-label">Disp. Trituradora</div>
+        <div class="gauge-pct">101.3%</div>
+        <div class="gauge-detail">99.4% / 98.1% budget</div>
+      </div>
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">🦾</span>
+        <div class="gauge-label">Disp. P&H 4100</div>
+        <div class="gauge-pct">107.9%</div>
+        <div class="gauge-detail">90.2% / 83.6% budget</div>
+      </div>
+      <div class="comp-gauge warn">
+        <span class="gauge-icon">🦾</span>
+        <div class="gauge-label">Disp. Hitachi EX5600</div>
+        <div class="gauge-pct">95.3%</div>
+        <div class="gauge-detail">85.1% / 89.3% budget</div>
+      </div>
+      <div class="comp-gauge fail">
+        <span class="gauge-icon">🚛</span>
+        <div class="gauge-label">Disp. CAT 793F</div>
+        <div class="gauge-pct">85.7%</div>
+        <div class="gauge-detail">71.5% / 83.4% budget</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Disponibilidad Física (%)</span>
+          <span class="card-sub">Real vs Budget — Meta ≥ 100%</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Trituradora / Faja</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">99.4%</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 98.1%</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">101.3%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">P&H 4100</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">90.2%</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 83.6%</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">107.9%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">Hitachi EX5600</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">85.1%</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 89.3%</span>
+                  <span class="cc cc-warn" style="font-size:9px;padding:1px 6px;">95.3%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:88%;background:var(--c-warn);"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">ULTRACLASS</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">89.3%</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 90.2%</span>
+                  <span class="cc cc-warn" style="font-size:9px;padding:1px 6px;">99.0%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:93%;background:var(--c-warn);"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">KOM 930E</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">88.0%</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 87.2%</span>
+                  <span class="cc cc-ok" style="font-size:9px;padding:1px 6px;">100.9%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:100%;background:var(--c-ok);"></div></div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">CAT 793F</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">71.5%</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 83.4%</span>
+                  <span class="cc cc-fail" style="font-size:9px;padding:1px 6px;">85.7%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:71%;background:var(--c-fail);"></div></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Productividad y Horas Paradas</span>
+          <span class="card-sub">DMT/h y horas no programadas</span>
+        </div>
+        <div class="card-body">
+          <table class="ctbl">
+            <thead><tr><th>Equipo</th><th>Prod. Real</th><th>Budget</th><th class="th-comp">Cumpl.</th><th>H. Paradas</th></tr></thead>
+            <tbody>
+              <tr class="grp-hdr"><td colspan="5">Productividad (DMT/h)</td></tr>
+              <tr><td>Trituradora</td><td>8,050</td><td>8,194</td><td style="text-align:center"><span class="cc cc-warn">98.2%</span></td><td>37 h</td></tr>
+              <tr><td>P&H 4100</td><td>5,240</td><td>5,301</td><td style="text-align:center"><span class="cc cc-warn">98.8%</span></td><td>886 h</td></tr>
+              <tr><td>Hitachi EX5600</td><td>2,210</td><td>2,488</td><td style="text-align:center"><span class="cc cc-fail">88.8%</span></td><td>843 h</td></tr>
+              <tr><td>ULTRACLASS</td><td>408</td><td>386</td><td style="text-align:center"><span class="cc cc-ok">105.7%</span></td><td>3,258 h</td></tr>
+              <tr><td>KOM 930E</td><td>318</td><td>339</td><td style="text-align:center"><span class="cc cc-warn">93.8%</span></td><td>9,959 h</td></tr>
+              <tr><td>CAT 793F</td><td>219</td><td>257</td><td style="text-align:center"><span class="cc cc-fail">85.2%</span></td><td>4,057 h</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:10px;padding:8px 10px;background:var(--c-fail-bg);border:1px solid rgba(214,59,75,0.2);border-radius:4px;font-size:11px;color:var(--text2);">
+            ⚠ &nbsp;CAT 793F con mayor desviación: <strong>-11.9%</strong> disp. · <strong>4,057 h</strong> paradas no programadas
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 7: VOLADURA & PERFORACIÓN ── -->
+  <div>
+    <div class="sec-hdr">
+      <span class="sec-num">07</span>
+      <span class="sec-title">Voladura & Perforación — Cumplimiento</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="comp-gauge-row">
+      <div class="comp-gauge warn">
+        <span class="gauge-icon">💥</span>
+        <div class="gauge-label">Material Tronado</div>
+        <div class="gauge-pct">86.4%</div>
+        <div class="gauge-detail">17,810 / 20,621 kDMT</div>
+      </div>
+      <div class="comp-gauge warn">
+        <span class="gauge-icon">🔩</span>
+        <div class="gauge-label">BE49HR Track-drill</div>
+        <div class="gauge-pct">91.3%</div>
+        <div class="gauge-detail">65,800 / 72,088 m</div>
+      </div>
+      <div class="comp-gauge fail">
+        <span class="gauge-icon">🔩</span>
+        <div class="gauge-label">PV 351D Track-drill</div>
+        <div class="gauge-pct">55.7%</div>
+        <div class="gauge-detail">7,800 / 14,006 m</div>
+      </div>
+      <div class="comp-gauge ok">
+        <span class="gauge-icon">⚡</span>
+        <div class="gauge-label">Factor Potencia</div>
+        <div class="gauge-pct">102.7%</div>
+        <div class="gauge-detail">0.38 / 0.37 kg/DMT</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Cumplimiento Perforación por Flota</span><span class="card-sub">Metros perforados vs Budget</span></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">BE49HR Track-drill</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">65,800 m</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 72,088</span>
+                  <span class="cc cc-warn" style="font-size:9px;padding:1px 6px;">91.3%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:91%;background:var(--c-warn);"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">P&H 320 Fleet</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">24,950 m</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 28,278</span>
+                  <span class="cc cc-warn" style="font-size:9px;padding:1px 6px;">88.2%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:88%;background:var(--c-warn);"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">CAT MD6540C</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">5,350 m</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 6,300</span>
+                  <span class="cc cc-warn" style="font-size:9px;padding:1px 6px;">84.9%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:85%;background:var(--c-warn);"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:11px;color:var(--text2)">PV 351D Track-drill</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <span style="font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif">7,800 m</span>
+                  <span style="font-size:10px;color:var(--text3)">/ 14,006</span>
+                  <span class="cc cc-fail" style="font-size:9px;padding:1px 6px;">55.7%</span>
+                </div>
+              </div>
+              <div class="cbar-track"><div class="cbar-fill" style="width:56%;background:var(--c-fail);"></div></div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Voladura por Fase</div>
+            <table class="ctbl">
+              <thead><tr><th>Fase</th><th>Real (kDMT)</th><th>Budget</th><th class="th-comp">Cumpl.</th></tr></thead>
+              <tbody>
+                <tr><td>Fase 08</td><td>5,180</td><td>5,800</td><td style="text-align:center"><span class="cc cc-warn">89.3%</span></td></tr>
+                <tr><td>Fase 09</td><td>7,750</td><td>8,400</td><td style="text-align:center"><span class="cc cc-warn">92.3%</span></td></tr>
+                <tr><td>Fase 10</td><td>2,880</td><td>6,421</td><td style="text-align:center"><span class="cc cc-fail">44.9%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Indicadores Adicionales</span><span class="card-sub">Voladura, lluvia & dewatering</span></div>
+        <div class="card-body">
+          <table class="ctbl">
+            <thead><tr><th>Indicador</th><th>Real</th><th>Budget</th><th class="th-comp">Cumpl.</th></tr></thead>
+            <tbody>
+              <tr class="grp-hdr"><td colspan="4">Explosivos</td></tr>
+              <tr><td>Factor potencia (kg/DMT)</td><td>0.38</td><td>0.37</td><td style="text-align:center"><span class="cc cc-ok">102.7%</span></td></tr>
+              <tr class="grp-hdr"><td colspan="4">Lluvia & Dewatering</td></tr>
+              <tr><td>Dewatering pit (L/s)</td><td>305</td><td>259</td><td style="text-align:center"><span class="cc cc-ok">117.8%</span></td></tr>
+              <tr><td>Lluvia en pit (mm)</td><td>65.4</td><td>96.4</td><td style="text-align:center"><span class="cc cc-warn">67.8%</span></td></tr>
+              <tr class="grp-hdr"><td colspan="4">Horas Producción Perforación</td></tr>
+              <tr><td>BE49HR (h prod)</td><td>1,780</td><td>2,403</td><td style="text-align:center"><span class="cc cc-warn">74.1%</span></td></tr>
+              <tr><td>P&H 320 (h prod)</td><td>845</td><td>943</td><td style="text-align:center"><span class="cc cc-warn">89.6%</span></td></tr>
+              <tr><td>PV 351D (h prod)</td><td>235</td><td>467</td><td style="text-align:center"><span class="cc cc-fail">50.3%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECCIÓN 9: RESUMEN KPIs ── -->
+  <div>
+    <div class="sec-hdr">
+      <span class="sec-num">09</span>
+      <span class="sec-title">Resumen KPIs — Cumplimiento Global</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <!-- Global scorecard -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px;">
+      <div style="background:var(--c-ok-bg);border:1px solid rgba(26,156,74,0.25);border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--c-ok)">8</div>
+        <div style="font-size:10px;font-weight:700;color:var(--c-ok);text-transform:uppercase;letter-spacing:1px;">✔ Cumple</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px;">≥ 100%</div>
+      </div>
+      <div style="background:var(--c-warn-bg);border:1px solid rgba(212,137,10,0.25);border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--c-warn)">4</div>
+        <div style="font-size:10px;font-weight:700;color:var(--c-warn);text-transform:uppercase;letter-spacing:1px;">⚠ Desviación</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px;">85% – 99%</div>
+      </div>
+      <div style="background:var(--c-fail-bg);border:1px solid rgba(214,59,75,0.25);border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--c-fail)">3</div>
+        <div style="font-size:10px;font-weight:700;color:var(--c-fail);text-transform:uppercase;letter-spacing:1px;">✕ Fuera de meta</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px;">&lt; 85%</div>
+      </div>
+      <div style="background:rgba(0,114,198,0.07);border:1px solid rgba(0,114,198,0.2);border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--accent)">15</div>
+        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">Total KPIs</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px;">Monitoreados</div>
+      </div>
+      <div style="background:var(--c-ok-bg);border:1px solid rgba(26,156,74,0.25);border-radius:6px;padding:14px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--c-ok)">53%</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;">% Cumplimiento</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px;">del total de KPIs</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Tabla Resumen — KPIs Clave Enero 2026</span>
+        <span class="card-sub">Actual · Budget · Forecast · Varianza · Cumplimiento</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="ctbl">
+          <thead>
+            <tr>
+              <th style="padding-left:16px;">KPI</th>
+              <th>Real</th><th>Budget</th><th>Forecast</th><th>Var. FC</th>
+              <th>YTD Real</th><th>YTD Bud.</th>
+              <th class="th-comp">Cumpl. Mes</th>
+              <th class="th-comp">Cumpl. YTD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="grp-hdr"><td colspan="9" style="padding-left:16px;">SEGURIDAD</td></tr>
+            <tr><td style="padding-left:16px;">RIFR</td><td>0.00</td><td>0.85</td><td>0.85</td><td>—</td><td>1.85</td><td>0.85</td>
+              <td style="text-align:center"><span class="cc cc-ok">✔ 100%</span></td>
+              <td style="text-align:center"><span class="cc cc-fail">✕ Fuera</span></td></tr>
+            <tr><td style="padding-left:16px;">RISR</td><td>0.00</td><td>9.70</td><td>9.70</td><td>—</td><td>14.20</td><td>9.70</td>
+              <td style="text-align:center"><span class="cc cc-ok">✔ 100%</span></td>
+              <td style="text-align:center"><span class="cc cc-fail">✕ Fuera</span></td></tr>
+
+            <tr class="grp-hdr"><td colspan="9" style="padding-left:16px;">PRODUCCIÓN (kDMT)</td></tr>
+            <tr><td style="padding-left:16px;">Ex-Pit Total</td><td>23,840</td><td>22,500</td><td>22,480</td><td>+6.1%</td><td>23,840</td><td>22,500</td>
+              <td style="text-align:center"><span class="cc cc-ok">105.9%</span></td>
+              <td style="text-align:center"><span class="cc cc-ok">105.9%</span></td></tr>
+            <tr><td style="padding-left:16px;">Mineral Ex-Pit</td><td>6,320</td><td>4,300</td><td>4,548</td><td>+38.9%</td><td>6,320</td><td>4,300</td>
+              <td style="text-align:center"><span class="cc cc-ok">147.0%</span></td>
+              <td style="text-align:center"><span class="cc cc-ok">147.0%</span></td></tr>
+            <tr><td style="padding-left:16px;">Desmonte Ex-Pit</td><td>17,520</td><td>18,200</td><td>17,932</td><td>-2.3%</td><td>17,520</td><td>18,200</td>
+              <td style="text-align:center"><span class="cc cc-fail">96.3%</span></td>
+              <td style="text-align:center"><span class="cc cc-warn">98.1%</span></td></tr>
+            <tr><td style="padding-left:16px;">Crusher Feed</td><td>5,620</td><td>5,200</td><td>5,176</td><td>+8.6%</td><td>5,620</td><td>5,200</td>
+              <td style="text-align:center"><span class="cc cc-ok">108.1%</span></td>
+              <td style="text-align:center"><span class="cc cc-ok">108.1%</span></td></tr>
+            <tr><td style="padding-left:16px;">Fase 10 Ex-Pit</td><td>3,050</td><td>6,800</td><td>5,946</td><td>-48.7%</td><td>3,050</td><td>6,800</td>
+              <td style="text-align:center"><span class="cc cc-fail">44.9%</span></td>
+              <td style="text-align:center"><span class="cc cc-fail">44.9%</span></td></tr>
+
+            <tr class="grp-hdr"><td colspan="9" style="padding-left:16px;">METALES</td></tr>
+            <tr><td style="padding-left:16px;">Cu Metal (t)</td><td>57.2</td><td>40.1</td><td>49.0</td><td>+16.7%</td><td>57.2</td><td>40.1</td>
+              <td style="text-align:center"><span class="cc cc-ok">142.6%</span></td>
+              <td style="text-align:center"><span class="cc cc-ok">142.6%</span></td></tr>
+            <tr><td style="padding-left:16px;">Zn Metal (t)</td><td>24.1</td><td>20.8</td><td>21.5</td><td>+12.1%</td><td>24.1</td><td>20.8</td>
+              <td style="text-align:center"><span class="cc cc-ok">115.9%</span></td>
+              <td style="text-align:center"><span class="cc cc-ok">115.9%</span></td></tr>
+
+            <tr class="grp-hdr"><td colspan="9" style="padding-left:16px;">EQUIPOS</td></tr>
+            <tr><td style="padding-left:16px;">Disp. Trituradora</td><td>99.4%</td><td>98.1%</td><td>97.5%</td><td>+1.9%</td><td>99.4%</td><td>98.1%</td>
+              <td style="text-align:center"><span class="cc cc-ok">101.3%</span></td>
+              <td style="text-align:center"><span class="cc cc-ok">101.3%</span></td></tr>
+            <tr><td style="padding-left:16px;">Disp. CAT 793F</td><td>71.5%</td><td>83.4%</td><td>75.0%</td><td>-4.7%</td><td>71.5%</td><td>83.4%</td>
+              <td style="text-align:center"><span class="cc cc-fail">85.7%</span></td>
+              <td style="text-align:center"><span class="cc cc-fail">85.7%</span></td></tr>
+
+            <tr class="grp-hdr"><td colspan="9" style="padding-left:16px;">PERFORACIÓN</td></tr>
+            <tr><td style="padding-left:16px;">BE49HR metros</td><td>65,800</td><td>72,088</td><td>72,088</td><td>-8.7%</td><td>65,800</td><td>72,088</td>
+              <td style="text-align:center"><span class="cc cc-warn">91.3%</span></td>
+              <td style="text-align:center"><span class="cc cc-warn">91.3%</span></td></tr>
+            <tr><td style="padding-left:16px;">PV 351D metros</td><td>7,800</td><td>14,006</td><td>14,006</td><td>-44.3%</td><td>7,800</td><td>14,006</td>
+              <td style="text-align:center"><span class="cc cc-fail">55.7%</span></td>
+              <td style="text-align:center"><span class="cc cc-fail">55.7%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════ MP PAGE ══════════════ -->
+<div class="page" id="page-mp">
+  <div class="main">
+    <div class="mp-placeholder">
+      <div class="mp-icon">📐</div>
+      <div class="mp-title">MEDIANO PLAZO (MP)</div>
+      <div class="mp-sub">Cumplimiento LOM · Plan 5 Años · Estrategia de Fases · Reservas</div>
+      <div style="margin-top:10px;display:flex;gap:10px;">
+        <span class="sbadge sbadge-blue">LOM Plan</span>
+        <span class="sbadge sbadge-blue">5 Year Plan</span>
+        <span class="sbadge sbadge-blue">Reservas & Recursos</span>
+        <span class="sbadge sbadge-blue">Estrategia de Fases</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Antamina Mine Operations & Technical Services · Cumplimiento CP/MP · Enero 2026 · Confidencial</span>
+  <span style="color:var(--accent)">GSJ · VPO · Planeamiento</span>
+</div>
+
+<script>
+  // Tab switching
+  function switchTab(tab, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-' + tab).classList.add('active');
+  }
+
+  // Period switching with data updates
+  const periodData = {
+    diario: {
+      label: 'Día: 31 Enero 2026',
+      ok: 5, warn: 3, fail: 2,
+      gauges: { expit:'102.1%', mineral:'131.0%', crusher:'105.3%', desmonte:'94.8%' }
+    },
+    semanal: {
+      label: 'Semana 4 · 27–31 Enero 2026',
+      ok: 7, warn: 4, fail: 2,
+      gauges: { expit:'104.2%', mineral:'140.2%', crusher:'106.8%', desmonte:'95.5%' }
+    },
+    mensual: {
+      label: 'Mes: Enero 2026 · 31 días',
+      ok: 8, warn: 4, fail: 3,
+      gauges: { expit:'105.9%', mineral:'147.0%', crusher:'108.1%', desmonte:'96.3%' }
+    }
+  };
+
+  function switchPeriod(p, el) {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    const d = periodData[p];
+    document.getElementById('period-label').textContent = d.label;
+    document.getElementById('cnt-ok').textContent = d.ok;
+    document.getElementById('cnt-warn').textContent = d.warn;
+    document.getElementById('cnt-fail').textContent = d.fail;
+  }
+</script>
+</body>
+</html>
