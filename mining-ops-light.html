@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antamina – Mining Operations Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f4f6fb;
+  --bg2:       #ffffff;
+  --bg3:       #f0f4fa;
+  --bg4:       #e8edf7;
+  --border:    #e2e8f0;
+  --border2:   #c8d6e8;
+
+  --teal:      #0072c6;
+  --teal-d:    #0059a0;
+  --teal-bg:   rgba(0,114,198,0.08);
+  --blue:      #1565c0;
+  --blue-bg:   rgba(21,101,192,0.08);
+  --green:     #1a7a40;
+  --green-bg:  rgba(26,122,64,0.09);
+  --red:       #c0392b;
+  --red-bg:    rgba(192,57,43,0.09);
+  --amber:     #b45309;
+  --amber-bg:  rgba(180,83,9,0.09);
+  --purple:    #6d28d9;
+  --purple-bg: rgba(109,40,217,0.09);
+
+  --text:      #1e2a3a;
+  --text2:     #4a5a72;
+  --text3:     #9aafc2;
+
+  --font-display: 'DM Mono', monospace;
+  --font-body:    'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 56px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.hex {
+  width: 36px; height: 36px;
+  background: var(--teal);
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 12px; color: #ffffff; letter-spacing: -1px;
+}
+.site-name {
+  font-family: var(--font-display); font-size: 15px;
+  color: var(--text); letter-spacing: 3px; font-weight: 500;
+}
+.site-sep { width: 1px; height: 22px; background: var(--border2); }
+.site-sub { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.date-tag {
+  font-family: var(--font-display); font-size: 11px; font-weight: 500;
+  color: var(--teal); background: var(--teal-bg);
+  border: 1px solid rgba(13,217,196,0.25);
+  padding: 5px 12px; border-radius: 4px; letter-spacing: 1px;
+}
+.live-dot {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text2);
+}
+.live-dot::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ─── PERIOD TOGGLE ─── */
+.period-bar {
+  display: flex; align-items: center; gap: 0;
+  padding: 12px 28px; background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.period-lbl { font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-right: 16px; font-family: var(--font-display); }
+.period-group { display: flex; background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; overflow: hidden; }
+.period-btn {
+  padding: 7px 20px; font-size: 12px; font-weight: 600;
+  color: var(--text2); cursor: pointer; border: none; background: none;
+  border-right: 1px solid var(--border); transition: all .15s;
+  font-family: var(--font-body); letter-spacing: .3px;
+}
+.period-btn:last-child { border-right: none; }
+.period-btn:hover { color: var(--teal); background: var(--teal-bg); }
+.period-btn.active { color: #ffffff; background: var(--teal); font-weight: 700; }
+
+.period-info { margin-left: auto; font-size: 10px; color: var(--text3); font-family: var(--font-display); }
+
+/* ─── MAIN LAYOUT ─── */
+.main { padding: 24px 28px; display: flex; flex-direction: column; gap: 32px; }
+
+/* ─── SECTION HEADER ─── */
+.sec { display: flex; flex-direction: column; gap: 14px; }
+.sec-head {
+  display: flex; align-items: center; gap: 12px;
+}
+.sec-num {
+  font-family: var(--font-display); font-size: 10px; font-weight: 500;
+  color: #ffffff; background: var(--teal); padding: 3px 8px;
+  border-radius: 3px; letter-spacing: 1px;
+}
+.sec-title {
+  font-family: var(--font-display); font-size: 13px; font-weight: 500;
+  color: var(--text); letter-spacing: 1.5px; text-transform: uppercase;
+}
+.sec-line { flex: 1; height: 1px; background: var(--border); }
+.sec-badge {
+  font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+  letter-spacing: .5px; font-family: var(--font-display);
+}
+.sb-ok   { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,212,107,.2); }
+.sb-warn { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,166,35,.2); }
+.sb-fail { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(240,75,90,.2); }
+
+/* ─── CARD ─── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,40,100,0.08), 0 4px 16px rgba(0,40,100,0.05);
+  box-shadow: 0 1px 4px rgba(0,40,100,0.08), 0 4px 16px rgba(0,40,100,0.05);
+  animation: fadeUp .4s ease both;
+}
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 16px; border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.card-title { font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-family: var(--font-display); }
+.card-sub { font-size: 10px; color: var(--text3); }
+.card-body { padding: 16px; }
+
+/* ─── GRIDS ─── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; }
+.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+.g13 { display: grid; grid-template-columns: 1fr 3fr; gap: 14px; }
+
+/* ─── PERIOD GRID (4 cols: Diario / Semanal / Mensual / Budget) ─── */
+.period-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.period-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.period-card-head {
+  padding: 9px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.period-label {
+  font-family: var(--font-display); font-size: 9px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.p-diario  .period-label { color: var(--blue); }
+.p-semanal .period-label { color: var(--teal); }
+.p-mensual .period-label { color: var(--amber); }
+.p-budget  .period-label { color: var(--purple); }
+.p-diario  { border-top: 2px solid var(--blue); }
+.p-semanal { border-top: 2px solid var(--teal); }
+.p-mensual { border-top: 2px solid var(--amber); }
+.p-budget  { border-top: 2px solid var(--purple); }
+
+.period-card-body { padding: 14px; }
+
+/* ─── KPI BIG NUMBER ─── */
+.kpi-big { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.kpi-val {
+  font-family: var(--font-display); font-size: 30px; font-weight: 500; line-height: 1;
+}
+.kpi-val.ok   { color: var(--green); }
+.kpi-val.warn { color: var(--amber); }
+.kpi-val.fail { color: var(--red); }
+.kpi-val.blue   { color: var(--blue); }
+.kpi-val.teal   { color: var(--teal); }
+.kpi-val.amber  { color: var(--amber); }
+.kpi-val.purple { color: var(--purple); }
+
+.kpi-lbl { font-size: 9px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+.kpi-sub { font-size: 10px; color: var(--text2); }
+
+/* ─── COMPLIANCE BADGE ─── */
+.cc {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-family: var(--font-display); font-size: 11px; font-weight: 500;
+  padding: 3px 9px; border-radius: 4px;
+}
+.cc-ok   { background: var(--green-bg); color: var(--green); }
+.cc-warn { background: var(--amber-bg); color: var(--amber); }
+.cc-fail { background: var(--red-bg);   color: var(--red); }
+
+/* ─── ROW BAR ─── */
+.row-bar { display: flex; flex-direction: column; gap: 3px; }
+.rb-meta { display: flex; justify-content: space-between; align-items: center; }
+.rb-name { font-size: 10px; color: var(--text2); }
+.rb-nums { display: flex; gap: 6px; align-items: center; font-family: var(--font-display); }
+.rb-real { font-size: 11px; font-weight: 500; color: var(--text); }
+.rb-plan { font-size: 9px; color: var(--text3); }
+.rb-track { height: 5px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.rb-fill  { height: 100%; border-radius: 2px; transition: width .6s ease; }
+
+/* ─── TABLE ─── */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text3); padding: 6px 10px;
+  text-align: right; border-bottom: 1px solid var(--border);
+  background: var(--bg3); font-family: var(--font-display);
+}
+.tbl th:first-child { text-align: left; }
+.tbl td {
+  font-size: 11px; padding: 7px 10px; text-align: right;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text2); font-family: var(--font-display);
+}
+.tbl td:first-child { text-align: left; color: var(--text); font-size: 11px; font-family: var(--font-body); font-weight: 500; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: rgba(255,255,255,.02); }
+.tbl tr.grp td { background: var(--bg3); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); border-left: 2px solid #0072c6; }
+.pos { color: var(--green) !important; }
+.neg { color: var(--red) !important; }
+.wrn { color: var(--amber) !important; }
+
+/* ─── SCATTER (Cuadrantes) ─── */
+.scatter-wrap { position: relative; }
+.scatter-svg { display: block; width: 100%; }
+.quad-label {
+  position: absolute; font-size: 10px; font-weight: 700;
+  font-family: var(--font-display); opacity: .35; letter-spacing: .5px;
+}
+
+/* ─── MINI SPARK ─── */
+.spark { display: flex; align-items: flex-end; gap: 2px; height: 36px; }
+.spark-col { flex: 1; border-radius: 1px 1px 0 0; min-height: 2px; }
+
+/* ─── DELTA PILL ─── */
+.delta {
+  display: inline-flex; align-items: center; gap: 2px;
+  font-size: 10px; font-weight: 700; font-family: var(--font-display);
+  padding: 2px 7px; border-radius: 3px;
+}
+.d-pos { background: var(--green-bg); color: var(--green); }
+.d-neg { background: var(--red-bg);   color: var(--red); }
+.d-wrn { background: var(--amber-bg); color: var(--amber); }
+
+/* ─── DIVIDER ─── */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* ─── PHASE CHIPS ─── */
+.phase-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.phase-chip {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border2);
+  background: var(--bg3); min-width: 72px; gap: 4px;
+}
+.ph-num { font-family: var(--font-display); font-size: 10px; color: var(--text3); }
+.ph-val { font-family: var(--font-display); font-size: 18px; font-weight: 500; }
+.ph-unit { font-size: 9px; color: var(--text3); }
+
+/* ─── FOOTER ─── */
+.footer {
+  padding: 10px 28px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text3); font-family: var(--font-display);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.10s}
+.card:nth-child(3){animation-delay:.15s}
+.card:nth-child(4){animation-delay:.20s}
+.period-card { animation: fadeUp .4s ease both; }
+.period-card:nth-child(1){animation-delay:.05s}
+.period-card:nth-child(2){animation-delay:.10s}
+.period-card:nth-child(3){animation-delay:.15s}
+.period-card:nth-child(4){animation-delay:.20s}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="hex">ANT</div>
+    <span class="site-name">ANTAMINA</span>
+    <div class="site-sep"></div>
+    <span class="site-sub">Mine Operations — Performance Dashboard</span>
+  </div>
+  <div class="topbar-right">
+    <span class="live-dot">En línea</span>
+    <span class="date-tag">ENE 2026</span>
+  </div>
+</header>
+
+<!-- PERIOD TOGGLE -->
+<div class="period-bar">
+  <span class="period-lbl">Período</span>
+  <div class="period-group">
+    <button class="period-btn active">Diario</button>
+    <button class="period-btn">Semanal</button>
+    <button class="period-btn">Mensual</button>
+    <button class="period-btn">Budget Anual</button>
+  </div>
+  <span class="period-info">Mostrando todos los períodos · 31 Ene 2026</span>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- S1: CUMPLIMIENTO DE PRODUCCIÓN MINA -->
+<!-- ══════════════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <span class="sec-title">Cumplimiento de Producción Mina</span>
+    <div class="sec-line"></div>
+    <span class="sec-badge sb-ok">Mineral ↑7.2% · Desmonte ↓3.7%</span>
+  </div>
+
+  <div class="period-grid">
+
+    <!-- DIARIO -->
+    <div class="period-card p-diario">
+      <div class="period-card-head">
+        <span class="period-label">Diario</span>
+        <span class="cc cc-ok">✔ 102.1%</span>
+      </div>
+      <div class="period-card-body">
+        <div class="kpi-big">
+          <div class="kpi-lbl">Mineral (Ore)</div>
+          <div class="kpi-val blue">21,840 <span style="font-size:13px;color:var(--text3)">kDMT</span></div>
+          <div class="kpi-sub">Forecast: 21,390 · <span class="delta d-pos">+450 kt</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi-big">
+          <div class="kpi-lbl">Desmonte (Waste)</div>
+          <div class="kpi-val warn">58,200 <span style="font-size:13px;color:var(--text3)">kDMT</span></div>
+          <div class="kpi-sub">Forecast: 60,400 · <span class="delta d-neg">-2,200 kt</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:9px;color:var(--text3)">Total Movido</span>
+          <span style="font-family:var(--font-display);font-size:13px;color:var(--text)">80,040 kDMT</span>
+        </div>
+        <div class="spark" style="margin-top:8px;">
+          <div class="spark-col" style="height:60%;background:var(--blue);opacity:.5;"></div>
+          <div class="spark-col" style="height:75%;background:var(--blue);opacity:.6;"></div>
+          <div class="spark-col" style="height:55%;background:var(--blue);opacity:.6;"></div>
+          <div class="spark-col" style="height:85%;background:var(--blue);opacity:.7;"></div>
+          <div class="spark-col" style="height:70%;background:var(--blue);opacity:.7;"></div>
+          <div class="spark-col" style="height:90%;background:var(--blue);opacity:.8;"></div>
+          <div class="spark-col" style="height:100%;background:var(--blue);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEMANAL -->
+    <div class="period-card p-semanal">
+      <div class="period-card-head">
+        <span class="period-label">Semanal</span>
+        <span class="cc cc-ok">✔ 104.7%</span>
+      </div>
+      <div class="period-card-body">
+        <div class="kpi-big">
+          <div class="kpi-lbl">Mineral (Ore)</div>
+          <div class="kpi-val teal">148,600 <span style="font-size:13px;color:var(--text3)">kDMT</span></div>
+          <div class="kpi-sub">Forecast: 141,900 · <span class="delta d-pos">+6,700 kt</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi-big">
+          <div class="kpi-lbl">Desmonte (Waste)</div>
+          <div class="kpi-val warn">402,800 <span style="font-size:13px;color:var(--text3)">kDMT</span></div>
+          <div class="kpi-sub">Forecast: 420,000 · <span class="delta d-neg">-17,200 kt</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:9px;color:var(--text3)">Total Movido</span>
+          <span style="font-family:var(--font-display);font-size:13px;color:var(--text)">551,400 kDMT</span>
+        </div>
+        <div class="spark" style="margin-top:8px;">
+          <div class="spark-col" style="height:70%;background:var(--teal);opacity:.5;"></div>
+          <div class="spark-col" style="height:80%;background:var(--teal);opacity:.6;"></div>
+          <div class="spark-col" style="height:90%;background:var(--teal);opacity:.7;"></div>
+          <div class="spark-col" style="height:75%;background:var(--teal);opacity:.7;"></div>
+          <div class="spark-col" style="height:95%;background:var(--teal);opacity:.8;"></div>
+          <div class="spark-col" style="height:88%;background:var(--teal);opacity:.9;"></div>
+          <div class="spark-col" style="height:100%;background:var(--teal);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENSUAL -->
+    <div class="period-card p-mensual">
+      <div class="period-card-head">
+        <span class="period-label">Mensual</span>
+        <span class="cc cc-ok">✔ 105.9%</span>
+      </div>
+      <div class="period-card-body">
+        <div class="kpi-big">
+          <div class="kpi-lbl">Mineral (Ore)</div>
+          <div class="kpi-val amber">6,320 <span style="font-size:13px;color:var(--text3)">kDMT</span></div>
+          <div class="kpi-sub">Forecast: 5,970 · <span class="delta d-pos">+350 kt</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi-big">
+          <div class="kpi-lbl">Desmonte (Waste)</div>
+          <div class="kpi-val warn">17,520 <span style="font-size:13px;color:var(--text3)">kDMT</span></div>
+          <div class="kpi-sub">Forecast: 18,200 · <span class="delta d-neg">-680 kt</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:9px;color:var(--text3)">Total Movido</span>
+          <span style="font-family:var(--font-display);font-size:13px;color:var(--text)">23,840 kDMT</span>
+        </div>
+        <div class="spark" style="margin-top:8px;">
+          <div class="spark-col" style="height:55%;background:var(--amber);opacity:.5;"></div>
+          <div class="spark-col" style="height:68%;background:var(--amber);opacity:.55;"></div>
+          <div class="spark-col" style="height:74%;background:var(--amber);opacity:.6;"></div>
+          <div class="spark-col" style="height:88%;background:var(--amber);opacity:.7;"></div>
+          <div class="spark-col" style="height:82%;background:var(--amber);opacity:.75;"></div>
+          <div class="spark-col" style="height:92%;background:var(--amber);opacity:.85;"></div>
+          <div class="spark-col" style="height:100%;background:var(--amber);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGET ANUAL -->
+    <div class="period-card p-budget">
+      <div class="period-card-head">
+        <span class="period-label">Budget Anual</span>
+        <span class="cc cc-warn">⚠ 8.8% YTD</span>
+      </div>
+      <div class="period-card-body">
+        <div class="kpi-big">
+          <div class="kpi-lbl">Mineral YTD / Budget</div>
+          <div class="kpi-val purple">6,320 <span style="font-size:13px;color:var(--text3)">/ 71,800 kDMT</span></div>
+          <div class="kpi-sub">Avance anual: <span class="delta d-pos">8.8%</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi-big">
+          <div class="kpi-lbl">Desmonte YTD / Budget</div>
+          <div class="kpi-val warn">17,520 <span style="font-size:13px;color:var(--text3)">/ 218,400 kDMT</span></div>
+          <div class="kpi-sub">Avance anual: <span class="delta d-wrn">8.0%</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);">
+            <span>% avance anual mineral</span><span style="color:var(--purple)">8.8%</span>
+          </div>
+          <div style="height:5px;background:var(--bg3);border-radius:2px;overflow:hidden;">
+            <div style="width:8.8%;height:100%;background:var(--purple);border-radius:2px;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);">
+            <span>% avance anual desmonte</span><span style="color:var(--amber)">8.0%</span>
+          </div>
+          <div style="height:5px;background:var(--bg3);border-radius:2px;overflow:hidden;">
+            <div style="width:8%;height:100%;background:var(--amber);border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary table -->
+  <div class="card">
+    <div class="card-head"><span class="card-title">Resumen Ore & Waste — Real vs Forecast vs Budget</span><span class="card-sub">kDMT</span></div>
+    <div class="card-body" style="padding:0">
+      <table class="tbl">
+        <thead><tr><th>Indicador</th><th>Real</th><th>Forecast</th><th>Var. FC</th><th>Budget Mes</th><th>Var. Bud</th><th>% Cumpl.</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="7">Mineral (Ore)</td></tr>
+          <tr><td>Ore Ex-Pit Total</td><td>6,320</td><td>5,970</td><td class="pos">+350</td><td>4,300</td><td class="pos">+2,020</td><td><span class="cc cc-ok">147.0%</span></td></tr>
+          <tr><td>Ore Crusher Feed</td><td>5,620</td><td>5,176</td><td class="pos">+444</td><td>5,200</td><td class="pos">+420</td><td><span class="cc cc-ok">108.1%</span></td></tr>
+          <tr class="grp"><td colspan="7">Desmonte (Waste)</td></tr>
+          <tr><td>Waste Ex-Pit Total</td><td>17,520</td><td>18,200</td><td class="neg">-680</td><td>18,200</td><td class="neg">-680</td><td><span class="cc cc-fail">96.3%</span></td></tr>
+          <tr><td>Waste Botadero Yanac.</td><td>10,820</td><td>12,400</td><td class="neg">-1,580</td><td>12,400</td><td class="neg">-1,580</td><td><span class="cc cc-warn">87.3%</span></td></tr>
+          <tr><td>Waste Botadero Tucush</td><td>3,420</td><td>3,375</td><td class="pos">+45</td><td>3,375</td><td class="pos">+45</td><td><span class="cc cc-ok">101.3%</span></td></tr>
+          <tr class="grp"><td colspan="7">Total Material Movido</td></tr>
+          <tr><td>Total Ex-Pit</td><td>23,840</td><td>22,480</td><td class="pos">+1,360</td><td>22,500</td><td class="pos">+1,340</td><td><span class="cc cc-ok">105.9%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- S2: PRODUCCIÓN POR FASES DEL PIT -->
+<!-- ══════════════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <span class="sec-title">Producción por Fases del Pit</span>
+    <div class="sec-line"></div>
+    <span class="sec-badge sb-fail">Fase 10 ↓55% vs Forecast</span>
+  </div>
+
+  <div class="period-grid">
+    <div class="period-card p-diario">
+      <div class="period-card-head"><span class="period-label">Diario</span><span class="cc cc-ok">✔ 101.4%</span></div>
+      <div class="period-card-body">
+        <div class="phase-row">
+          <div class="phase-chip"><span class="ph-num">PH 08</span><span class="ph-val" style="color:var(--green)">8.2k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 09</span><span class="ph-val" style="color:var(--blue)">9.2k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 10</span><span class="ph-val" style="color:var(--red)">3.0k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 11</span><span class="ph-val" style="color:var(--amber)">2.1k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 12</span><span class="ph-val" style="color:var(--text3)">0.8k</span><span class="ph-unit">kDMT</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="period-card p-semanal">
+      <div class="period-card-head"><span class="period-label">Semanal</span><span class="cc cc-ok">✔ 103.2%</span></div>
+      <div class="period-card-body">
+        <div class="phase-row">
+          <div class="phase-chip"><span class="ph-num">PH 08</span><span class="ph-val" style="color:var(--green)">57k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 09</span><span class="ph-val" style="color:var(--blue)">64k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 10</span><span class="ph-val" style="color:var(--red)">21k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 11</span><span class="ph-val" style="color:var(--amber)">14k</span><span class="ph-unit">kDMT</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 12</span><span class="ph-val" style="color:var(--text3)">5k</span><span class="ph-unit">kDMT</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="period-card p-mensual">
+      <div class="period-card-head"><span class="period-label">Mensual</span><span class="cc cc-warn">⚠ 92.8%</span></div>
+      <div class="period-card-body">
+        <div class="phase-row">
+          <div class="phase-chip"><span class="ph-num">PH 08</span><span class="ph-val" style="color:var(--green)">8.1k</span><span class="ph-unit">k</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 09</span><span class="ph-val" style="color:var(--blue)">9.2k</span><span class="ph-unit">k</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 10</span><span class="ph-val" style="color:var(--red)">3.0k</span><span class="ph-unit">k</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 11</span><span class="ph-val" style="color:var(--amber)">2.1k</span><span class="ph-unit">k</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 12</span><span class="ph-val" style="color:var(--text3)">0.8k</span><span class="ph-unit">k</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="period-card p-budget">
+      <div class="period-card-head"><span class="period-label">Budget Anual</span><span class="cc cc-warn">⚠ 9.1% YTD</span></div>
+      <div class="period-card-body">
+        <div class="phase-row">
+          <div class="phase-chip"><span class="ph-num">PH 08</span><span class="ph-val" style="color:var(--purple)">97k</span><span class="ph-unit">bud</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 09</span><span class="ph-val" style="color:var(--purple)">105k</span><span class="ph-unit">bud</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 10</span><span class="ph-val" style="color:var(--red)">81k</span><span class="ph-unit">bud</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 11</span><span class="ph-val" style="color:var(--amber)">25k</span><span class="ph-unit">bud</span></div>
+          <div class="phase-chip"><span class="ph-num">PH 12</span><span class="ph-val" style="color:var(--text3)">10k</span><span class="ph-unit">bud</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Cumplimiento por Fase — Mensual</span><span class="card-sub">kDMT Real vs Forecast</span></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:11px;">
+        <div class="row-bar">
+          <div class="rb-meta"><span class="rb-name">Phase 08</span><div class="rb-nums"><span class="rb-real">8,120</span><span class="rb-plan">/ 6,000</span><span class="cc cc-ok" style="font-size:9px;padding:1px 6px">135%</span></div></div>
+          <div class="rb-track"><div class="rb-fill" style="width:100%;background:var(--green);"></div></div>
+        </div>
+        <div class="row-bar">
+          <div class="rb-meta"><span class="rb-name">Phase 09</span><div class="rb-nums"><span class="rb-real">9,210</span><span class="rb-plan">/ 8,800</span><span class="cc cc-ok" style="font-size:9px;padding:1px 6px">104%</span></div></div>
+          <div class="rb-track"><div class="rb-fill" style="width:100%;background:var(--teal);"></div></div>
+        </div>
+        <div class="row-bar">
+          <div class="rb-meta"><span class="rb-name">Phase 10</span><div class="rb-nums"><span class="rb-real">3,050</span><span class="rb-plan">/ 6,800</span><span class="cc cc-fail" style="font-size:9px;padding:1px 6px">45%</span></div></div>
+          <div class="rb-track"><div class="rb-fill" style="width:45%;background:var(--red);"></div></div>
+        </div>
+        <div class="row-bar">
+          <div class="rb-meta"><span class="rb-name">Phase 11</span><div class="rb-nums"><span class="rb-real">2,100</span><span class="rb-plan">/ 2,500</span><span class="cc cc-warn" style="font-size:9px;padding:1px 6px">84%</span></div></div>
+          <div class="rb-track"><div class="rb-fill" style="width:84%;background:var(--amber);"></div></div>
+        </div>
+        <div class="row-bar">
+          <div class="rb-meta"><span class="rb-name">Phase 12</span><div class="rb-nums"><span class="rb-real">840</span><span class="rb-plan">/ 700</span><span class="cc cc-ok" style="font-size:9px;padding:1px 6px">120%</span></div></div>
+          <div class="rb-track"><div class="rb-fill" style="width:100%;background:var(--green);"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Tabla Fases — Real vs Forecast vs Budget</span></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>Fase</th><th>Real</th><th>Forecast</th><th>Var. FC</th><th>Budget</th><th>Var. Bud</th></tr></thead>
+          <tbody>
+            <tr><td>Phase 08</td><td>8,120</td><td>6,000</td><td class="pos">+2,120</td><td>8,083</td><td class="pos">+37</td></tr>
+            <tr><td>Phase 09</td><td>9,210</td><td>8,800</td><td class="pos">+410</td><td>8,750</td><td class="pos">+460</td></tr>
+            <tr><td>Phase 10</td><td>3,050</td><td>6,800</td><td class="neg">-3,750</td><td>6,743</td><td class="neg">-3,693</td></tr>
+            <tr><td>Phase 11</td><td>2,100</td><td>2,500</td><td class="neg">-400</td><td>2,083</td><td class="pos">+17</td></tr>
+            <tr><td>Phase 12</td><td>840</td><td>700</td><td class="pos">+140</td><td>700</td><td class="pos">+140</td></tr>
+            <tr style="border-top:1px solid var(--border2)"><td><b>Total</b></td><td><b>23,320</b></td><td><b>24,800</b></td><td class="neg"><b>-1,480</b></td><td><b>26,359</b></td><td class="neg"><b>-3,039</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- S3: DISPONIBILIDAD DE FLOTA -->
+<!-- ══════════════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <span class="sec-title">Disponibilidad de Flota de Acarreo y Carguío</span>
+    <div class="sec-line"></div>
+    <span class="sec-badge sb-fail">CAT 793F ↓11.9pp vs Plan</span>
+  </div>
+
+  <div class="period-grid">
+    <div class="period-card p-diario">
+      <div class="period-card-head"><span class="period-label">Diario</span><span class="cc cc-warn">⚠ 88.4%</span></div>
+      <div class="period-card-body">
+        <table class="tbl">
+          <thead><tr><th>Equipo</th><th>Disp%</th><th>Plan%</th></tr></thead>
+          <tbody>
+            <tr><td>Triturad.</td><td class="pos">99.4</td><td>98.1</td></tr>
+            <tr><td>P&H 4100</td><td class="pos">90.2</td><td>83.6</td></tr>
+            <tr><td>EX5600</td><td class="wrn">85.1</td><td>89.3</td></tr>
+            <tr><td>ULTRA</td><td class="wrn">89.3</td><td>90.2</td></tr>
+            <tr><td>KOM930</td><td class="pos">88.0</td><td>87.2</td></tr>
+            <tr><td>CAT793</td><td class="neg">71.5</td><td>83.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="period-card p-semanal">
+      <div class="period-card-head"><span class="period-label">Semanal</span><span class="cc cc-warn">⚠ 89.1%</span></div>
+      <div class="period-card-body">
+        <table class="tbl">
+          <thead><tr><th>Equipo</th><th>Disp%</th><th>Plan%</th></tr></thead>
+          <tbody>
+            <tr><td>Triturad.</td><td class="pos">99.1</td><td>98.1</td></tr>
+            <tr><td>P&H 4100</td><td class="pos">89.8</td><td>83.6</td></tr>
+            <tr><td>EX5600</td><td class="wrn">84.5</td><td>89.3</td></tr>
+            <tr><td>ULTRA</td><td class="wrn">88.9</td><td>90.2</td></tr>
+            <tr><td>KOM930</td><td class="pos">87.5</td><td>87.2</td></tr>
+            <tr><td>CAT793</td><td class="neg">72.8</td><td>83.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="period-card p-mensual">
+      <div class="period-card-head"><span class="period-label">Mensual</span><span class="cc cc-warn">⚠ 89.6%</span></div>
+      <div class="period-card-body">
+        <table class="tbl">
+          <thead><tr><th>Equipo</th><th>Disp%</th><th>Plan%</th></tr></thead>
+          <tbody>
+            <tr><td>Triturad.</td><td class="pos">99.4</td><td>98.1</td></tr>
+            <tr><td>P&H 4100</td><td class="pos">90.2</td><td>83.6</td></tr>
+            <tr><td>EX5600</td><td class="wrn">85.1</td><td>89.3</td></tr>
+            <tr><td>ULTRA</td><td class="wrn">89.3</td><td>90.2</td></tr>
+            <tr><td>KOM930</td><td class="pos">88.0</td><td>87.2</td></tr>
+            <tr><td>CAT793</td><td class="neg">71.5</td><td>83.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="period-card p-budget">
+      <div class="period-card-head"><span class="period-label">Budget Anual</span><span class="cc cc-warn">⚠ YTD</span></div>
+      <div class="period-card-body">
+        <table class="tbl">
+          <thead><tr><th>Equipo</th><th>YTD%</th><th>Bud%</th></tr></thead>
+          <tbody>
+            <tr><td>Triturad.</td><td class="pos">99.4</td><td>98.5</td></tr>
+            <tr><td>P&H 4100</td><td class="pos">90.2</td><td>85.0</td></tr>
+            <tr><td>EX5600</td><td class="wrn">85.1</td><td>88.0</td></tr>
+            <tr><td>ULTRA</td><td class="wrn">89.3</td><td>91.0</td></tr>
+            <tr><td>KOM930</td><td class="pos">88.0</td><td>87.5</td></tr>
+            <tr><td>CAT793</td><td class="neg">71.5</td><td>84.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="card-title">Barras de Disponibilidad — Real vs Plan (Mensual)</span></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+      <!-- Trituradora -->
+      <div class="row-bar">
+        <div class="rb-meta"><span class="rb-name">Trituradora / Faja</span><div class="rb-nums"><span class="rb-real">99.4%</span><span class="rb-plan">/ 98.1%</span><span class="cc cc-ok" style="font-size:9px;padding:1px 6px">+1.3pp</span></div></div>
+        <div class="rb-track"><div class="rb-fill" style="width:99%;background:var(--green);"></div></div>
+      </div>
+      <div class="row-bar">
+        <div class="rb-meta"><span class="rb-name">P&H 4100 (Pala)</span><div class="rb-nums"><span class="rb-real">90.2%</span><span class="rb-plan">/ 83.6%</span><span class="cc cc-ok" style="font-size:9px;padding:1px 6px">+6.6pp</span></div></div>
+        <div class="rb-track"><div class="rb-fill" style="width:90%;background:var(--green);"></div></div>
+      </div>
+      <div class="row-bar">
+        <div class="rb-meta"><span class="rb-name">Hitachi EX5600 (Pala)</span><div class="rb-nums"><span class="rb-real">85.1%</span><span class="rb-plan">/ 89.3%</span><span class="cc cc-warn" style="font-size:9px;padding:1px 6px">-4.2pp</span></div></div>
+        <div class="rb-track"><div class="rb-fill" style="width:85%;background:var(--amber);"></div></div>
+      </div>
+      <div class="row-bar">
+        <div class="rb-meta"><span class="rb-name">Camiones ULTRACLASS</span><div class="rb-nums"><span class="rb-real">89.3%</span><span class="rb-plan">/ 90.2%</span><span class="cc cc-warn" style="font-size:9px;padding:1px 6px">-0.9pp</span></div></div>
+        <div class="rb-track"><div class="rb-fill" style="width:89%;background:var(--amber);"></div></div>
+      </div>
+      <div class="row-bar">
+        <div class="rb-meta"><span class="rb-name">Camiones KOM 930E</span><div class="rb-nums"><span class="rb-real">88.0%</span><span class="rb-plan">/ 87.2%</span><span class="cc cc-ok" style="font-size:9px;padding:1px 6px">+0.8pp</span></div></div>
+        <div class="rb-track"><div class="rb-fill" style="width:88%;background:var(--green);"></div></div>
+      </div>
+      <div class="row-bar">
+        <div class="rb-meta"><span class="rb-name">Camiones CAT 793F</span><div class="rb-nums"><span class="rb-real">71.5%</span><span class="rb-plan">/ 83.4%</span><span class="cc cc-fail" style="font-size:9px;padding:1px 6px">-11.9pp</span></div></div>
+        <div class="rb-track"><div class="rb-fill" style="width:71%;background:var(--red);"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- S4: UTILIZACIÓN DE FLOTA -->
+<!-- ══════════════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <span class="sec-title">Utilización de Flota de Acarreo y Carguío</span>
+    <div class="sec-line"></div>
+    <span class="sec-badge sb-warn">CAT 793F 82.7% · EX5600 70.0%</span>
+  </div>
+
+  <div class="period-grid">
+    <div class="period-card p-diario">
+      <div class="period-card-head"><span class="period-label">Diario</span><span class="cc cc-ok">✔ 85.2%</span></div>
+      <div class="period-card-body">
+        <table class="tbl"><thead><tr><th>Equipo</th><th>Util%</th><th>Plan%</th></tr></thead>
+        <tbody>
+          <tr><td>P&H 4100</td><td class="pos">83.1</td><td>80.0</td></tr>
+          <tr><td>EX5600</td><td class="neg">70.0</td><td>78.0</td></tr>
+          <tr><td>ULTRA</td><td class="pos">87.0</td><td>85.0</td></tr>
+          <tr><td>KOM930</td><td class="pos">87.5</td><td>84.0</td></tr>
+          <tr><td>CAT793</td><td class="wrn">82.7</td><td>85.0</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="period-card p-semanal">
+      <div class="period-card-head"><span class="period-label">Semanal</span><span class="cc cc-warn">⚠ 84.8%</span></div>
+      <div class="period-card-body">
+        <table class="tbl"><thead><tr><th>Equipo</th><th>Util%</th><th>Plan%</th></tr></thead>
+        <tbody>
+          <tr><td>P&H 4100</td><td class="pos">82.8</td><td>80.0</td></tr>
+          <tr><td>EX5600</td><td class="neg">69.5</td><td>78.0</td></tr>
+          <tr><td>ULTRA</td><td class="pos">86.5</td><td>85.0</td></tr>
+          <tr><td>KOM930</td><td class="pos">87.1</td><td>84.0</td></tr>
+          <tr><td>CAT793</td><td class="wrn">82.2</td><td>85.0</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="period-card p-mensual">
+      <div class="period-card-head"><span class="period-label">Mensual</span><span class="cc cc-warn">⚠ 84.5%</span></div>
+      <div class="period-card-body">
+        <table class="tbl"><thead><tr><th>Equipo</th><th>Util%</th><th>Plan%</th></tr></thead>
+        <tbody>
+          <tr><td>P&H 4100</td><td class="pos">83.1</td><td>80.0</td></tr>
+          <tr><td>EX5600</td><td class="neg">70.0</td><td>78.0</td></tr>
+          <tr><td>ULTRA</td><td class="pos">87.0</td><td>85.0</td></tr>
+          <tr><td>KOM930</td><td class="pos">87.5</td><td>84.0</td></tr>
+          <tr><td>CAT793</td><td class="wrn">82.7</td><td>85.0</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="period-card p-budget">
+      <div class="period-card-head"><span class="period-label">Budget Anual</span><span class="cc cc-warn">⚠ YTD</span></div>
+      <div class="period-card-body">
+        <table class="tbl"><thead><tr><th>Equipo</th><th>YTD%</th><th>Bud%</th></tr></thead>
+        <tbody>
+          <tr><td>P&H 4100</td><td class="pos">83.1</td><td>81.0</td></tr>
+          <tr><td>EX5600</td><td class="neg">70.0</td><td>79.0</td></tr>
+          <tr><td>ULTRA</td><td class="pos">87.0</td><td>85.5</td></tr>
+          <tr><td>KOM930</td><td class="pos">87.5</td><td>84.5</td></tr>
+          <tr><td>CAT793</td><td class="wrn">82.7</td><td>85.5</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- S5: PRODUCTIVIDAD DE EQUIPOS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <span class="sec-title">Productividad de Equipos de Acarreo y Carguío</span>
+    <div class="sec-line"></div>
+    <span class="sec-badge sb-warn">EX5600 88.8% · CAT793 85.2%</span>
+  </div>
+
+  <div class="period-grid">
+    <div class="period-card p-diario">
+      <div class="period-card-head"><span class="period-label">Diario</span><span class="cc cc-ok">✔ 95.8%</span></div>
+      <div class="period-card-body">
+        <div class="kpi-big"><div class="kpi-lbl">P&H 4100 — ton/h</div><div class="kpi-val blue">5,240</div><div class="kpi-sub">Plan: 5,301 · <span class="delta d-wrn">98.8%</span></div></div>
+        <div class="kpi-big"><div class="kpi-lbl">KOM 930E — ton/h</div><div class="kpi-val teal">318</div><div class="kpi-sub">Plan: 339 · <span class="delta d-neg">93.8%</span></div></div>
+      </div>
+    </div>
+    <div class="period-card p-semanal">
+      <div class="period-card-head"><span class="period-label">Semanal</span><span class="cc cc-warn">⚠ 94.2%</span></div>
+      <div class="period-card-body">
+        <div class="kpi-big"><div class="kpi-lbl">P&H 4100 — ton/h</div><div class="kpi-val teal">5,198</div><div class="kpi-sub">Plan: 5,301 · <span class="delta d-wrn">98.1%</span></div></div>
+        <div class="kpi-big"><div class="kpi-lbl">KOM 930E — ton/h</div><div class="kpi-val amber">312</div><div class="kpi-sub">Plan: 339 · <span class="delta d-neg">92.0%</span></div></div>
+      </div>
+    </div>
+    <div class="period-card p-mensual">
+      <div class="period-card-head"><span class="period-label">Mensual</span><span class="cc cc-warn">⚠ 94.1%</span></div>
+      <div class="period-card-body">
+        <div class="kpi-big"><div class="kpi-lbl">P&H 4100 — ton/h</div><div class="kpi-val amber">5,240</div><div class="kpi-sub">Plan: 5,301 · <span class="delta d-wrn">98.8%</span></div></div>
+        <div class="kpi-big"><div class="kpi-lbl">EX5600 — ton/h</div><div class="kpi-val fail" style="color:var(--red)">2,210</div><div class="kpi-sub">Plan: 2,488 · <span class="delta d-neg">88.8%</span></div></div>
+      </div>
+    </div>
+    <div class="period-card p-budget">
+      <div class="period-card-head"><span class="period-label">Budget Anual</span><span class="cc cc-warn">⚠ YTD</span></div>
+      <div class="period-card-body">
+        <div class="kpi-big"><div class="kpi-lbl">ULTRA — ton/h</div><div class="kpi-val purple">408</div><div class="kpi-sub">Bud: 386 · <span class="delta d-pos">105.7%</span></div></div>
+        <div class="kpi-big"><div class="kpi-lbl">CAT 793F — ton/h</div><div class="kpi-val" style="color:var(--red)">219</div><div class="kpi-sub">Bud: 257 · <span class="delta d-neg">85.2%</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="card-title">Productividad Equipos — Real vs Plan (Mensual)</span><span class="card-sub">DMT/h</span></div>
+    <div class="card-body" style="padding:0">
+      <table class="tbl">
+        <thead><tr><th>Equipo</th><th>Prod. Real</th><th>Plan</th><th>Var.</th><th>% Cumpl.</th><th>H. Paradas</th><th>TKPH</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="7">Carguío (Palas)</td></tr>
+          <tr><td>P&H 4100</td><td>5,240</td><td>5,301</td><td class="wrn">-61</td><td><span class="cc cc-warn">98.8%</span></td><td>886 h</td><td>—</td></tr>
+          <tr><td>Hitachi EX5600</td><td>2,210</td><td>2,488</td><td class="neg">-278</td><td><span class="cc cc-fail">88.8%</span></td><td>843 h</td><td>—</td></tr>
+          <tr class="grp"><td colspan="7">Acarreo (Camiones)</td></tr>
+          <tr><td>ULTRACLASS</td><td>408</td><td>386</td><td class="pos">+22</td><td><span class="cc cc-ok">105.7%</span></td><td>3,258 h</td><td>6,191</td></tr>
+          <tr><td>KOM 930E</td><td>318</td><td>339</td><td class="neg">-21</td><td><span class="cc cc-warn">93.8%</span></td><td>9,959 h</td><td>5,564</td></tr>
+          <tr><td>CAT 793F</td><td>219</td><td>257</td><td class="neg">-38</td><td><span class="cc cc-fail">85.2%</span></td><td>4,057 h</td><td>4,382</td></tr>
+          <tr class="grp"><td colspan="7">Perforación</td></tr>
+          <tr><td>BE49HR Track-drill</td><td>65,800 m</td><td>72,088 m</td><td class="neg">-6,288</td><td><span class="cc cc-warn">91.3%</span></td><td>—</td><td>—</td></tr>
+          <tr><td>P&H 320 Fleet</td><td>24,950 m</td><td>28,278 m</td><td class="neg">-3,328</td><td><span class="cc cc-warn">88.2%</span></td><td>—</td><td>—</td></tr>
+          <tr><td>PV 351D Track-drill</td><td>7,800 m</td><td>14,006 m</td><td class="neg">-6,206</td><td><span class="cc cc-fail">55.7%</span></td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- S6: ANÁLISIS DE DESEMPEÑO — CUADRANTES XY -->
+<!-- ══════════════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <span class="sec-title">Análisis de Desempeño Operativo por Cuadrantes</span>
+    <div class="sec-line"></div>
+    <span class="sec-badge sb-warn">Disponibilidad Camión vs Pala</span>
+  </div>
+
+  <div class="period-grid" style="margin-bottom:14px;">
+    <div class="period-card p-diario">
+      <div class="period-card-head"><span class="period-label">Diario</span><span class="cc cc-warn">⚠ Desbalance KOM</span></div>
+      <div class="period-card-body">
+        <div style="font-size:10px;color:var(--text2);">3 flotas en Q1 · 2 en Q3 · 1 en Q2</div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="delta d-pos">KOM930 Q1</span>
+          <span class="delta d-pos">ULTRA Q1</span>
+          <span class="delta d-wrn">KOM980 Q2</span>
+          <span class="delta d-neg">CAT793 Q3</span>
+          <span class="delta d-neg">EX5600 Q4</span>
+        </div>
+      </div>
+    </div>
+    <div class="period-card p-semanal">
+      <div class="period-card-head"><span class="period-label">Semanal</span><span class="cc cc-warn">⚠ CAT793 crítico</span></div>
+      <div class="period-card-body">
+        <div style="font-size:10px;color:var(--text2);">Tendencia semana: CAT793 sin mejora</div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="delta d-pos">KOM930 Q1</span>
+          <span class="delta d-wrn">KOM980 Q2</span>
+          <span class="delta d-neg">CAT793 Q3</span>
+        </div>
+      </div>
+    </div>
+    <div class="period-card p-mensual">
+      <div class="period-card-head"><span class="period-label">Mensual</span><span class="cc cc-fail">✕ CAT793 fuera</span></div>
+      <div class="period-card-body">
+        <div style="font-size:10px;color:var(--text2);">Mes: posición CAT793 sostenidamente en Q3</div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="delta d-neg">CAT793 Q3 persistente</span>
+          <span class="delta d-neg">EX5600 Q4</span>
+        </div>
+      </div>
+    </div>
+    <div class="period-card p-budget">
+      <div class="period-card-head"><span class="period-label">Budget Anual</span><span class="cc cc-warn">⚠ YTD</span></div>
+      <div class="period-card-body">
+        <div style="font-size:10px;color:var(--text2);">Objetivo budget: todas las flotas en Q1</div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="delta d-pos">Target Q1 ≥88%</span>
+          <span class="delta d-neg">CAT793 -12.5pp</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scatter plot SVG -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Scatter — Disponibilidad Camión vs Disponibilidad Pala</span>
+      <span class="card-sub">Cuadrantes operativos · Ene 2026</span>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;gap:20px;align-items:flex-start;">
+
+        <div style="flex:1;position:relative;">
+          <svg viewBox="0 0 500 420" style="width:100%;display:block;background:var(--bg3);border-radius:6px;border:1px solid var(--border);">
+
+            <!-- Quad backgrounds -->
+            <rect x="50" y="20" width="210" height="180" fill="rgba(192,57,43,0.05)"/>   <!-- Q2 top-left bad cam, good pala -->
+            <rect x="260" y="20" width="220" height="180" fill="rgba(26,122,64,0.05)"/> <!-- Q1 top-right both good -->
+            <rect x="50" y="200" width="210" height="180" fill="rgba(180,83,9,0.05)"/> <!-- Q3 bottom-left both bad -->
+            <rect x="260" y="200" width="220" height="180" fill="rgba(21,101,192,0.05)"/><!-- Q4 bottom-right good cam bad pala -->
+
+            <!-- Grid lines -->
+            <line x1="50" y1="20" x2="50" y2="390" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+            <line x1="50" y1="390" x2="480" y2="390" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+            <line x1="260" y1="20" x2="260" y2="390" stroke="rgba(0,0,0,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="50" y1="200" x2="480" y2="200" stroke="rgba(0,0,0,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+
+            <!-- Axes labels -->
+            <text x="265" y="410" fill="#9aafc2" font-size="10" font-family="DM Mono,monospace">Disponibilidad Camiones (%)</text>
+            <text x="14" y="210" fill="#9aafc2" font-size="10" font-family="DM Mono,monospace" transform="rotate(-90,14,210)">Disp. Pala (%)</text>
+
+            <!-- Axis ticks -->
+            <text x="44" y="395" fill="#9aafc2" font-size="8" text-anchor="end">60</text>
+            <text x="44" y="205" fill="#9aafc2" font-size="8" text-anchor="end">85</text>
+            <text x="44" y="25" fill="#9aafc2" font-size="8" text-anchor="end">100</text>
+            <text x="50" y="405" fill="#9aafc2" font-size="8">60</text>
+            <text x="250" y="405" fill="#9aafc2" font-size="8">85</text>
+            <text x="464" y="405" fill="#9aafc2" font-size="8">100</text>
+
+            <!-- Quadrant labels -->
+            <text x="58" y="38" fill="rgba(240,75,90,0.6)" font-size="9" font-family="DM Mono,monospace" font-weight="500">Q2 · Cam↓ Pala↑</text>
+            <text x="268" y="38" fill="rgba(34,212,107,0.7)" font-size="9" font-family="DM Mono,monospace" font-weight="500">Q1 · Cam↑ Pala↑ ✓</text>
+            <text x="58" y="380" fill="rgba(245,166,35,0.6)" font-size="9" font-family="DM Mono,monospace" font-weight="500">Q3 · Cam↓ Pala↓</text>
+            <text x="268" y="380" fill="rgba(59,158,255,0.6)" font-size="9" font-family="DM Mono,monospace" font-weight="500">Q4 · Cam↑ Pala↓</text>
+
+            <!-- TARGET zone circle -->
+            <circle cx="380" cy="80" r="30" fill="none" stroke="rgba(34,212,107,0.3)" stroke-width="1.5" stroke-dasharray="4 2"/>
+            <text x="380" y="76" fill="rgba(34,212,107,0.5)" font-size="7" text-anchor="middle" font-family="DM Mono">TARGET</text>
+            <text x="380" y="87" fill="rgba(34,212,107,0.5)" font-size="7" text-anchor="middle" font-family="DM Mono">ZONE</text>
+
+            <!-- DATA POINTS -->
+            <!-- KOM 930E: Cam=88, Pala=90.2 → Q1 (good/good) -->
+            <!-- Map: x=50+(cam-60)/(100-60)*430, y=390-(pala-60)/(100-60)*370 -->
+            <!-- KOM930: cam=88 → x=50+28/40*430=351, pala=90.2 → y=390-30.2/40*370=111 -->
+            <circle cx="351" cy="111" r="12" fill="rgba(13,217,196,0.85)" stroke="#0dd9c4" stroke-width="1.5"/>
+            <text x="351" y="115" text-anchor="middle" fill="#ffffff" font-size="8" font-family="DM Mono" font-weight="500">KOM930</text>
+            <text x="351" y="100" text-anchor="middle" fill="var(--teal)" font-size="8" font-family="DM Mono">88 / 90</text>
+
+            <!-- KOM 980: Cam=91, Pala=88 → Q1 -->
+            <!-- cam=91 → x=50+31/40*430=383, pala=88 → y=390-28/40*370=131 -->
+            <circle cx="383" cy="131" r="12" fill="rgba(59,158,255,0.85)" stroke="#3b9eff" stroke-width="1.5"/>
+            <text x="383" y="135" text-anchor="middle" fill="#ffffff" font-size="8" font-family="DM Mono" font-weight="500">KOM980</text>
+            <text x="383" y="120" text-anchor="middle" fill="var(--blue)" font-size="8" font-family="DM Mono">91 / 88</text>
+
+            <!-- ULTRACLASS: Cam=89.3, Pala=90.2 → Q1 -->
+            <!-- cam=89.3 → x=50+29.3/40*430=365, pala=90.2 → y=390-30.2/40*370=111 -->
+            <circle cx="365" cy="111" r="14" fill="rgba(34,212,107,0.85)" stroke="#22d46b" stroke-width="1.5"/>
+            <text x="365" y="115" text-anchor="middle" fill="#ffffff" font-size="7" font-family="DM Mono" font-weight="500">ULTRA</text>
+            <text x="365" y="100" text-anchor="middle" fill="var(--green)" font-size="8" font-family="DM Mono">89 / 90</text>
+
+            <!-- EX5600: Cam=85.1 (pala disponib), Utiliz=70 → bajo -->
+            <!-- Usar EX5600 como pala: Cam(camiones que sirve)=85, Pala(EX)=85.1 → Q3/Q1 border -->
+            <!-- cam=75 → x=50+15/40*430=211, pala=85.1 → y=390-25.1/40*370=157 -->
+            <circle cx="211" cy="157" r="12" fill="rgba(245,166,35,0.85)" stroke="#f5a623" stroke-width="1.5"/>
+            <text x="211" y="161" text-anchor="middle" fill="#ffffff" font-size="8" font-family="DM Mono" font-weight="500">EX5600</text>
+            <text x="211" y="146" text-anchor="middle" fill="var(--amber)" font-size="8" font-family="DM Mono">75 / 85</text>
+
+            <!-- CAT793: Cam=71.5, Pala relacionada=83 → Q3 critical -->
+            <!-- cam=71.5 → x=50+11.5/40*430=174, pala=80 → y=390-20/40*370=205 -->
+            <circle cx="174" cy="205" r="14" fill="rgba(240,75,90,0.9)" stroke="#f04b5a" stroke-width="2"/>
+            <text x="174" y="209" text-anchor="middle" fill="#ffffff" font-size="8" font-family="DM Mono" font-weight="500">CAT793</text>
+            <text x="174" y="194" text-anchor="middle" fill="var(--red)" font-size="8" font-family="DM Mono">71 / 80</text>
+
+            <!-- P&H4100: Cam=88, Pala=90.2 -> Q1 -->
+            <!-- cam=86 → x=50+26/40*430=330, pala=90.2 → y=111 -->
+            <circle cx="330" cy="108" r="12" fill="rgba(167,139,250,0.85)" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="330" y="112" text-anchor="middle" fill="#ffffff" font-size="8" font-family="DM Mono" font-weight="500">P&H4100</text>
+            <text x="330" y="97" text-anchor="middle" fill="var(--purple)" font-size="8" font-family="DM Mono">86 / 90</text>
+
+          </svg>
+        </div>
+
+        <!-- Legend + summary -->
+        <div style="width:220px;display:flex;flex-direction:column;gap:12px;">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);">Resumen por Cuadrante</div>
+
+          <div style="padding:10px;background:var(--green-bg);border:1px solid rgba(34,212,107,.2);border-radius:5px;">
+            <div style="font-size:9px;font-weight:700;color:var(--green);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px;">Q1 — ÓPTIMO ✓</div>
+            <div style="font-size:10px;color:var(--text2);">Cam ↑ · Pala ↑</div>
+            <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">
+              <span style="font-size:9px;background:var(--teal-bg);color:var(--teal);padding:2px 6px;border-radius:3px;">KOM930</span>
+              <span style="font-size:9px;background:var(--blue-bg);color:var(--blue);padding:2px 6px;border-radius:3px;">KOM980</span>
+              <span style="font-size:9px;background:var(--green-bg);color:var(--green);padding:2px 6px;border-radius:3px;">ULTRA</span>
+              <span style="font-size:9px;background:var(--purple-bg);color:var(--purple);padding:2px 6px;border-radius:3px;">P&H4100</span>
+            </div>
+          </div>
+
+          <div style="padding:10px;background:var(--amber-bg);border:1px solid rgba(245,166,35,.2);border-radius:5px;">
+            <div style="font-size:9px;font-weight:700;color:var(--amber);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px;">Q2 · BORDER ⚠</div>
+            <div style="font-size:10px;color:var(--text2);">Cam ~ · Pala ~</div>
+            <div style="margin-top:4px;">
+              <span style="font-size:9px;background:var(--amber-bg);color:var(--amber);padding:2px 6px;border-radius:3px;">EX5600</span>
+            </div>
+          </div>
+
+          <div style="padding:10px;background:var(--red-bg);border:1px solid rgba(240,75,90,.2);border-radius:5px;">
+            <div style="font-size:9px;font-weight:700;color:var(--red);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px;">Q3 — CRÍTICO ✕</div>
+            <div style="font-size:10px;color:var(--text2);">Cam ↓ · Pala ↓</div>
+            <div style="margin-top:4px;">
+              <span style="font-size:9px;background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:3px;">CAT 793F</span>
+            </div>
+            <div style="font-size:9px;color:var(--text3);margin-top:6px;">Requiere acción inmediata · 4,057 h paradas</div>
+          </div>
+
+          <div style="padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;">
+            <div style="font-size:9px;font-weight:700;color:var(--text2);font-family:var(--font-display);letter-spacing:1px;margin-bottom:4px;">LEYENDA EJES</div>
+            <div style="font-size:9px;color:var(--text3);">X → Disponibilidad Camiones (%)</div>
+            <div style="font-size:9px;color:var(--text3);">Y → Disponibilidad Pala / Crusher (%)</div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px;">Umbral: 85% en ambos ejes</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /main -->
+
+<footer class="footer">
+  <span>Antamina Mine Operations — Performance Dashboard · Enero 2026 · Confidencial</span>
+  <span style="color:var(--teal)">GSJ · VPO · Planeamiento CP</span>
+</footer>
+
+<script>
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
+
